@@ -15,8 +15,7 @@ def search (search_string, n):
             result_start_index = i-1 + len(search_string)
             return line[result_start_index:result_start_index+n].strip()
         
-    return ""    
-    
+    return ""      
           
 customername = search("!",30)
 devicen = search("DEVICE : ",30)
@@ -25,7 +24,6 @@ masksupplier = search("MASK SUPPLIER : ", 30)
 daten1 = search ("DATE : " ,11)
 d1=datetime.strptime(daten1,"%m/%d/%Y")
 daten=d1.strftime("%Y-%m-%d")
-
 
 siteof= search ("SITE OF : ",30)
 orderformnumber = search("ORDERFORM NUMBER : ",15)
@@ -64,13 +62,13 @@ for l in range(len(lines)):
     
     if "LEVEL INFORMATION" in lines[l]:   
         c1=l      
-t1=0
-for line in lines[c1:]:
+
+for line in lines[c1+6:]:
     if line.startswith("|XX"):
         break
-    if t1>=6:
-        revision2.append(line[7:10].strip())
-    t1+=1            
+    
+    revision2.append(line[7:10].strip())
+               
           
 #Code for elements inside MASK CODIFICATION
 numn=[] 
@@ -84,26 +82,24 @@ for l in range(len(lines)):
     
     if "MASK CODIFICATION" in lines[l]:   
         c2=l 
-t2=0
+
 count1=0     #counter for knowing no.of lines in maskmodification
 for line in lines[c2+2:]:
 
     if line.startswith("|----"):
         break
-    if t2>=0:
-        numn.append(line[3:7].strip())
-        maskcodificationn.append(line[8:41].strip())
-        groupn.append(line[42:45].strip())
-        cyclen.append(line[47:50].strip())
-        qtyn.append(line[52:55].strip())
+    
+    numn.append(line[3:7].strip())
+    maskcodificationn.append(line[8:41].strip())
+    groupn.append(line[42:45].strip())
+    cyclen.append(line[47:50].strip())
+    qtyn.append(line[52:55].strip())
 
-        shipdaten1=(line[56:64].strip())
-        d1=datetime.strptime(shipdaten1,"%d%b%y")
-        shipdaten.append(d1.strftime("%Y-%m-%d"))
+    shipdaten1=(line[56:64].strip())
+    d1=datetime.strptime(shipdaten1,"%d%b%y")
+    shipdaten.append(d1.strftime("%Y-%m-%d"))
         
-
-        count1+=1
-    t2+=1      
+    count1+=1     
 
 #Code for elements inside CRITICAL DIMENSIONS' INFORMATION
 cdnumn=[]
@@ -116,36 +112,33 @@ for l in range(len(lines)):
     
     if "CRITICAL DIMENSIONS' INFORMATION" in lines[l]:   
         c3=l 
-t3=0
-count2=0     #counter for knowing no.of lines in critical dimensions' information
-for line in lines[c3:]:
+
+count2=0     #counter for knowing no.of lines in level information/critical dimensions' information
+
+for line in lines[c3+6:]:
     if line.startswith("|XX"):
         break
-    if t3>=6:
-        cdnumn.append(line[37:42].strip())
-        cdnamen.append(line[43:50].strip())
-        featuren.append(line[51:58].strip())
-        tonen.append(line[59:66].strip())
-        polarityn.append(line[67:73].strip())
-        count2+=1
-    t3+=1          
+    
+    cdnumn.append(line[37:42].strip())
+    cdnamen.append(line[43:50].strip())
+    featuren.append(line[51:58].strip())
+    tonen.append(line[59:66].strip())
+    polarityn.append(line[67:73].strip())
 
-
-  
-print("num",numn)
+    count2+=1
+            
+print("num=",numn)
 print("maskcodification=",maskcodificationn) 
 print("group=",groupn)
 print("cycle=",cyclen)
 print("Qty=",qtyn)
 print("Shipdate=",shipdaten)
-
-print("Revision=",revision2)
-
-print(cdnumn)
-print(cdnamen)
-print(featuren)
-print(tonen)
-print(polarityn)
+print("Revision2=",revision2)
+print("cdnum=",cdnumn)
+print("CD Name=",cdnamen)
+print("Feature=",featuren)
+print("Tone=",tonen)
+print("Polarity=",polarityn)
     
 print("PONumbers="+PONumbers)
 print("Site to send masks to="+sitetosendmasksto)
@@ -157,10 +150,10 @@ print("Additional info="+additionalinfo)
 print("Count1=",count1)
 print("Count2=",count2)
 
-# Create the root element
-order_form = ET.Element("OrderForm")
+#Root
+order_form = ET.Element("OrderForm")  
 
-# Add child elements
+# Children
 customer = ET.SubElement(order_form, "Customer")
 customer.text = customername
 
@@ -201,8 +194,7 @@ email_address = ET.SubElement(order_form, "EmailAddress")
 email_address.text = emailaddress
 
 
-
-# Add Levels
+# Adding Levels
 levels = ET.SubElement(order_form, "Levels")
 
 j=0
@@ -210,7 +202,6 @@ while(j<count1):
     
     level = ET.SubElement(levels, "Level", num=numn[j])
     
-
     mask_codification = ET.SubElement(level, "MaskCodification")
     mask_codification.text = maskcodificationn[j]
 
@@ -228,9 +219,7 @@ while(j<count1):
 
     j+=1
 
-
-
-# Add Cdinformation
+# Adding Cdinformation
 cdinformation = ET.SubElement(order_form, "Cdinformation")
 
 k=0
@@ -258,7 +247,6 @@ while (k<count2):
 
     k+=1
 
-
 po_numbers = ET.SubElement(order_form, "PONumbers")
 po_numbers.text = PONumbers
 
@@ -277,15 +265,15 @@ shipping_method.text = shippingmethod
 additional_information = ET.SubElement(order_form, "AdditionalInformation")
 additional_information.text = additionalinfo
 
-# Convert to a string
+
 xmlstr = ET.tostring(order_form, encoding="unicode")
 
 x=parseString(xmlstr)
 x1=x.toprettyxml()
 print (x1)
 
-# Write to file
-with open("Output.xml", "w") as f:
+
+with open("Output_python.xml", "w") as f:
     f.write(x1)
 
 print("XML file generated successfully.")
