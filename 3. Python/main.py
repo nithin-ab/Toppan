@@ -4,6 +4,7 @@ from datetime import datetime
 
 file=open("orderform.txt","r")
 lines=file.readlines()
+file.close()
 
 def search (search_string, n):
 
