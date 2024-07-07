@@ -14,16 +14,16 @@ close($fh);
 
 sub search 
 {
-    my ($search_string, $n) = @_;
+    my ($s, $n) = @_;
 
     foreach my $line (@lines) 
     {
-        my $i = index($line, $search_string);
+        my $i = index($line, $s);
         
         if ($i != -1) 
         {
-            my $result_start_index = $i-1 + length($search_string);
-            my $result = substr($line, $result_start_index, $n);
+            my $s1 = $i-1 + length($s);
+            my $result = substr($line, $s1, $n);
             $result=~ s/^\s+|\s+$//g;
             return $result; 
         }
@@ -54,7 +54,7 @@ my $masksetname  =search ("MASK SET NAME : ",30);
 my $fabunit= search("FAB UNIT        : ",20);
 my $emailaddress= search("EMAIL : ",22);
 
-my $PONumbers=search ("P.O. NUMBERS : ",30);
+my $ponumbers=search ("P.O. NUMBERS : ",30);
 my $sitetosendmasksto=search("SITE TO SEND MASKS TO : ",24);
 my $sitetosendinvoiceto=search("SITE TO SEND INVOICE TO : ",22);
 my $technicalcontact=search("TECHNICAL CONTACT : ",26);
@@ -80,7 +80,7 @@ my @revision2;
 
 my $c1 = 0;
 
-#Code for Revison2
+#Revison2
 
 for (my $l = 0; $l < scalar @lines; $l++) 
 {
@@ -105,13 +105,12 @@ for my $line (@lines[$c1+6 .. $#lines])
 
 print "Revision2 array= @revision2\n";
 
-#Code for elements inside MASK CODIFICATION
+# MASK CODIFICATION
 
 my (@numn, @maskcodificationn, @groupn, @cyclen, @qtyn, @shipdaten);
 
 my $c2 = 0;
 
-# Find the line containing "MASK CODIFICATION"
 for (my $l = 0; $l < scalar @lines; $l++) 
 {
     if ($lines[$l] =~ "MASK CODIFICATION") 
@@ -121,7 +120,7 @@ for (my $l = 0; $l < scalar @lines; $l++)
     }
 }
 
-my $count1 = 0;  # Counter for knowing no. of lines in maskcodification
+my $count1 = 0;  
 
 for my $line (@lines[$c2+2 .. $#lines]) 
 {
@@ -148,7 +147,6 @@ for my $line (@lines[$c2+2 .. $#lines])
     
 }
 
-
 print "num: @numn\n";
 print "maskcodification: @maskcodificationn\n";
 print "group: @groupn\n";
@@ -156,7 +154,7 @@ print "cycle: @cyclen\n";
 print "qty: @qtyn\n";
 print "shipdate: @shipdaten\n";
 
-#Code for elements inside CRITICAL DIMENSIONS' INFORMATION
+# CRITICAL DIMENSIONS' INFORMATION
 
 my (@cdnumn, @cdnamen, @featuren, @tonen, @polarityn);
 
@@ -171,7 +169,7 @@ for (my $l = 0; $l < scalar @lines; $l++)
     }
 }
 
-my $count2 = 0;  # Counter for knowing no. of lines in level information/critical dimensions' information
+my $count2 = 0; 
 
 
 for my $line (@lines[$c3+6 .. $#lines]) 
@@ -193,7 +191,7 @@ print "feature: @featuren\n";
 print "tone: @tonen\n";
 print "polarity: @polarityn\n";
 
-print "PONumbers=$PONumbers\n";
+print "PONumbers=$ponumbers\n";
 print "Site to send masks to=$sitetosendmasksto\n";
 print "Site to send invoice to=$sitetosendinvoiceto\n";
 print "Technical contact=$technicalcontact\n";
@@ -204,12 +202,11 @@ print "Count1=$count1\n";
 print "Count2=$count2\n";
 
 
-
 my $doc = XML::LibXML::Document->new('1.0', 'UTF-8');
 my $order_form = $doc->createElement('OrderForm');
 $doc->setDocumentElement($order_form);
 
-# Add child elements
+# children
 my $customer = $order_form->addNewChild('', 'Customer');
 $customer->appendTextNode($customername);
 
@@ -249,7 +246,7 @@ $fab_unit->appendTextNode($fabunit);
 my $email_address = $order_form->addNewChild('', 'EmailAddress');
 $email_address->appendTextNode($emailaddress);
 
-# Adding Levels
+# Adding levels
 my $levels = $order_form->addNewChild('', 'Levels');
 
 for (my $j = 0; $j < $count1; $j++) 
@@ -273,7 +270,7 @@ for (my $j = 0; $j < $count1; $j++)
     $ship_date->appendTextNode($shipdaten[$j]);
 }
 
-# Add Cdinformation
+# Adding Cdinfo
 my $cdinformation = $order_form->addNewChild('', 'Cdinformation');
 
 for (my $k = 0; $k < $count2; $k++) 
@@ -300,7 +297,7 @@ for (my $k = 0; $k < $count2; $k++)
 }
 
 my $po_numbers = $order_form->addNewChild('', 'PONumbers');
-$po_numbers->appendTextNode($PONumbers);
+$po_numbers->appendTextNode($ponumbers);
 
 my $site_to_send_masks_to = $order_form->addNewChild('', 'SiteToSendMasksTo');
 $site_to_send_masks_to->appendTextNode($sitetosendmasksto);
@@ -321,9 +318,8 @@ $additional_information->appendTextNode($additionalinfo);
 my $xmlstr = $doc->toString(1);
 print $xmlstr;
 
-# File writing
 open(my $fh1, '>', 'Output_perl.xml') or die "Could not open file 'Output_perl.xml' $!";
 print $fh1 $xmlstr;
 close $fh1;
 
-print "XML file generated successfully.\n";
+print "End\n";

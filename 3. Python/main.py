@@ -4,17 +4,18 @@ from datetime import datetime
 
 file=open("orderform.txt","r")
 lines=file.readlines()
+
 file.close()
 
-def search (search_string, n):
+def search (s, n):
 
     for line in lines:
         
-        i = line.find(search_string)
+        i = line.find(s)
         if i!=-1:
             
-            result_start_index = i-1 + len(search_string)
-            return line[result_start_index:result_start_index+n].strip()
+            s1 = i-1 + len(s)
+            return line[s1:s1+n].strip()
         
     return ""      
           
@@ -36,7 +37,7 @@ masksetname  =search ("MASK SET NAME : ",30)
 fabunit= search("FAB UNIT        : ",20)
 emailaddress= search("EMAIL : ",22)
 
-PONumbers=search ("P.O. NUMBERS : ",30)
+ponumbers=search ("P.O. NUMBERS : ",30)
 sitetosendmasksto=search("SITE TO SEND MASKS TO : ",24)
 sitetosendinvoiceto=search("SITE TO SEND INVOICE TO : ",22)
 technicalcontact=search("TECHNICAL CONTACT : ",26)
@@ -57,7 +58,7 @@ print("Mask set name="+masksetname)
 print("Fab Unit="+fabunit)
 print("Email address="+emailaddress)
 
-#Code for Revison2
+# Revison2
 revision2=[]
 for l in range(len(lines)):
     
@@ -71,7 +72,7 @@ for line in lines[c1+6:]:
     revision2.append(line[7:10].strip())
                
           
-#Code for elements inside MASK CODIFICATION
+# MASK CODIFICATION
 numn=[] 
 maskcodificationn=[] 
 groupn=[]
@@ -84,7 +85,7 @@ for l in range(len(lines)):
     if "MASK CODIFICATION" in lines[l]:   
         c2=l 
 
-count1=0     #counter for knowing no.of lines in maskmodification
+count1=0     
 for line in lines[c2+2:]:
 
     if line.startswith("|----"):
@@ -102,7 +103,7 @@ for line in lines[c2+2:]:
         
     count1+=1     
 
-#Code for elements inside CRITICAL DIMENSIONS' INFORMATION
+# CRITICAL DIMENSIONS' INFORMATION
 cdnumn=[]
 cdnamen=[]
 featuren=[]
@@ -114,7 +115,7 @@ for l in range(len(lines)):
     if "CRITICAL DIMENSIONS' INFORMATION" in lines[l]:   
         c3=l 
 
-count2=0     #counter for knowing no.of lines in level information/critical dimensions' information
+count2=0     
 
 for line in lines[c3+6:]:
     if line.startswith("|XX"):
@@ -141,7 +142,7 @@ print("Feature=",featuren)
 print("Tone=",tonen)
 print("Polarity=",polarityn)
     
-print("PONumbers="+PONumbers)
+print("PONumbers="+ponumbers)
 print("Site to send masks to="+sitetosendmasksto)
 print("Site to send invoice to="+sitetosendinvoiceto)
 print("Technical contact="+technicalcontact)
@@ -195,7 +196,7 @@ email_address = ET.SubElement(order_form, "EmailAddress")
 email_address.text = emailaddress
 
 
-# Adding Levels
+# Adding levels
 levels = ET.SubElement(order_form, "Levels")
 
 j=0
@@ -220,7 +221,7 @@ while(j<count1):
 
     j+=1
 
-# Adding Cdinformation
+# Adding Cdinfo
 cdinformation = ET.SubElement(order_form, "Cdinformation")
 
 k=0
@@ -249,7 +250,7 @@ while (k<count2):
     k+=1
 
 po_numbers = ET.SubElement(order_form, "PONumbers")
-po_numbers.text = PONumbers
+po_numbers.text = ponumbers
 
 site_to_send_masks_to = ET.SubElement(order_form, "SiteToSendMasksTo")
 site_to_send_masks_to.text = sitetosendmasksto
@@ -267,9 +268,9 @@ additional_information = ET.SubElement(order_form, "AdditionalInformation")
 additional_information.text = additionalinfo
 
 
-xmlstr = ET.tostring(order_form, encoding="unicode")
+xml1 = ET.tostring(order_form, encoding="unicode")
 
-x=parseString(xmlstr)
+x=parseString(xml1)
 x1=x.toprettyxml()
 print (x1)
 
@@ -277,5 +278,6 @@ print (x1)
 with open("Output_python.xml", "w") as f:
     f.write(x1)
 
-print("XML file generated successfully.")
+print("end")
 
+f.close()
