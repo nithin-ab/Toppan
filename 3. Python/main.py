@@ -1,48 +1,116 @@
 import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 from datetime import datetime
+import re
 
 file=open("orderform.txt","r")
-lines=file.readlines()
-
+lines=file.readlines()  
 file.close()
 
-def search (s, n):
+customername = '' 
+masksupplier = ''
+daten=''
+devicen=''
+siteof=''
+orderformnumber = ''
+revisionn = ''
+pagen = ''
+technologyname = ''
+statusn= ''
+masksetname  =''
+fabunit= ''
+emailaddress= ''
+ponumbers=''
+sitetosendmasksto=''
+sitetosendinvoiceto=''
+technicalcontact=''
+shippingmethod=''
+additionalinfo=''
 
-    for line in lines:
-        
-        i = line.find(s)
-        if i!=-1:
-            
-            s1 = i-1 + len(s)
-            return line[s1:s1+n].strip()
-        
-    return ""      
-          
-customername = search("!",30)
-devicen = search("DEVICE : ",30)
-masksupplier = search("MASK SUPPLIER : ", 30)
+for line in lines:
+    
+    customernames = re.search(r'\|(.*?)\s*MASK SUPPLIER', line)
+    if customernames:
+        customername = customernames.group(1).strip()
+    
+    #masksupplier_S = re.search(r'MASK SUPPLIER : (\w+)', line)
+    #masksupplier_s = re.search(r'MASK SUPPLIER\s*:\s*(\w+)', line)
 
-daten1 = search ("DATE : " ,11)
-d1=datetime.strptime(daten1,"%m/%d/%Y")
-daten=d1.strftime("%Y-%m-%d")
+    masksupplier_s = re.search(r'MASK SUPPLIER\s*:\s*(.*?) DATE', line)
+    if masksupplier_s:
+        masksupplier = masksupplier_s.group(1).strip()
 
-siteof= search ("SITE OF : ",30)
-orderformnumber = search("ORDERFORM NUMBER : ",15)
-revisionn = search("REVISION : ",10)
-pagen = search ("PAGE : ",4)
-technologyname = search ("TECHNOLOGY NAME : ",20)
-statusn= search("STATUS    : ",5)
-masksetname  =search ("MASK SET NAME : ",30)
-fabunit= search("FAB UNIT        : ",20)
-emailaddress= search("EMAIL : ",22)
+    daten_s = re.search(r'DATE\s*:\s*(.*?)\s*\|', line)
+    if daten_s:
+        date1 = daten_s.group(1).strip()
+        d1=datetime.strptime(date1,"%m/%d/%Y")
+        daten=d1.strftime("%Y-%m-%d")
 
-ponumbers=search ("P.O. NUMBERS : ",30)
-sitetosendmasksto=search("SITE TO SEND MASKS TO : ",24)
-sitetosendinvoiceto=search("SITE TO SEND INVOICE TO : ",22)
-technicalcontact=search("TECHNICAL CONTACT : ",26)
-shippingmethod=search("SHIPPING METHOD : ",15)
-additionalinfo=search("ADDITIONAL INFORMATION : ",15)
+    devicen_s = re.search(r'DEVICE\s*:\s*(.*?)\s*\|', line)
+    if devicen_s:
+        devicen = devicen_s.group(1).strip()
+   
+    siteof_s = re.search(r'SITE OF\s*:\s*(.*?) ORDERFORM', line)
+    if siteof_s:
+        siteof = siteof_s.group(1).strip()
+
+    orderformnumber_s = re.search(r'ORDERFORM NUMBER\s*:\s*(.*?) REVISION', line)
+    if orderformnumber_s:
+        orderformnumber = orderformnumber_s.group(1).strip()
+
+    revisionn_s = re.search(r'REVISION\s*:\s*(.*?) PAGE', line)
+    if revisionn_s:
+        revisionn = revisionn_s.group(1).strip()
+
+    pagen_s = re.search(r'PAGE\s*:\s*(.*?) OF', line)
+    if pagen_s:
+        pagen = pagen_s.group(1).strip() 
+
+    technologyname_s = re.search(r'TECHNOLOGY NAME\s*:\s*(.*?) STATUS', line)
+    if technologyname_s:
+        technologyname = technologyname_s.group(1).strip()
+
+    statusn_s = re.search(r'STATUS\s*:\s*(.*?)\s*\|', line)
+    if statusn_s:
+        statusn = statusn_s.group(1).strip() 
+
+    masksetname_s = re.search(r'MASK SET NAME\s*:\s*(.*?)\s*\|', line)
+    if masksetname_s:
+        masksetname = masksetname_s.group(1).strip()
+
+    fabunit_s = re.search(r'FAB UNIT\s*:\s*(.*?) EMAIL', line)
+    if fabunit_s:
+        fabunit = fabunit_s.group(1).strip() 
+
+    emailaddress_s = re.search(r'EMAIL\s*:\s*(.*?)\s*\|', line)
+    if emailaddress_s:
+        emailaddress = emailaddress_s.group(1).strip()
+
+    ponumbers_s = re.search(r'P.O. NUMBERS\s*:\s*(.*?) SPECIFICATIONS', line)
+    if ponumbers_s:
+        ponumbers = ponumbers_s.group(1).strip() 
+
+    sitetosendmasksto_s = re.search(r'SITE TO SEND MASKS TO\s*:\s*(.*?) TO THE ATTENTION OF', line)
+    if sitetosendmasksto_s:
+        sitetosendmasksto = sitetosendmasksto_s.group(1).strip()
+
+    sitetosendinvoiceto_s = re.search(r'SITE TO SEND INVOICE TO\s*:\s*(.*?) TECHNICAL CONTACT', line)
+    if sitetosendinvoiceto_s:
+        sitetosendinvoiceto = sitetosendinvoiceto_s.group(1).strip() 
+
+    technicalcontact_s = re.search(r'TECHNICAL CONTACT\s*:\s*(.*?) SHIPPING METHOD', line)
+    if technicalcontact_s:
+        technicalcontact = technicalcontact_s.group(1).strip()
+
+    shippingmethod_s = re.search(r'SHIPPING METHOD\s*:\s*(.*?)\s*\|', line)
+    if shippingmethod_s:
+        shippingmethod = shippingmethod_s.group(1).strip()
+
+    #Assuming ADDITIONAL INFORMATION as CUSTOM CLEARANCE DONE BY   
+    additionalinfo_s = re.search(r'ADDITIONAL INFORMATION\s*:\s*(.*?)\s*\|', line)
+    if additionalinfo_s:
+        additionalinfo = additionalinfo_s.group(1).strip()
+
 
 print("Customer="+customername)
 print("Device="+devicen)
@@ -68,10 +136,14 @@ for l in range(len(lines)):
 for line in lines[c1+6:]:
     if line.startswith("|XX"):
         break
-    
-    revision2.append(line[7:10].strip())
+
+    # (?:[^|]*\|) non-capturing group
+    # ([^|]*) capturing group
+    match1 = re.search(r'^(?:[^|]*\|){2}([^|]*)\|', line)  
+    if match1:
+        
+        revision2.append(match1.group(1).strip())
                
-          
 # MASK CODIFICATION
 numn=[] 
 maskcodificationn=[] 
@@ -91,15 +163,31 @@ for line in lines[c2+2:]:
     if line.startswith("|----"):
         break
     
-    numn.append(line[3:7].strip())
-    maskcodificationn.append(line[8:41].strip())
-    groupn.append(line[42:45].strip())
-    cyclen.append(line[47:50].strip())
-    qtyn.append(line[52:55].strip())
+    match2 = re.search(r'^(?:[^|]*\|){1}([^|]*)\|', line)   #^ important
+    if match2:
+        numn.append(match2.group(1).strip())
 
-    shipdaten1=(line[56:64].strip())
-    d1=datetime.strptime(shipdaten1,"%d%b%y")
-    shipdaten.append(d1.strftime("%Y-%m-%d"))
+    match3 = re.search(r'^(?:[^|]*\|){2}([^|]*)\|', line)
+    if match3:
+        maskcodificationn.append(match3.group(1).strip())
+
+    match4 = re.search(r'^(?:[^|]*\|){3}([^|]*)\|', line)
+    if match4:
+        groupn.append(match4.group(1).strip())
+
+    match5 = re.search(r'^(?:[^|]*\|){4}([^|]*)\|', line)
+    if match5:
+        cyclen.append(match5.group(1).strip())
+
+    match6 = re.search(r'^(?:[^|]*\|){5}([^|]*)\|', line)
+    if match6:
+        qtyn.append(match6.group(1).strip())
+    
+    match7 = re.search(r'^(?:[^|]*\|){6}([^|]*)\|', line)
+    if match7:
+        shipdaten1=match7.group(1).strip()
+        d1=datetime.strptime(shipdaten1,"%d%b%y")
+        shipdaten.append(d1.strftime("%Y-%m-%d"))
         
     count1+=1     
 
@@ -120,12 +208,27 @@ count2=0
 for line in lines[c3+6:]:
     if line.startswith("|XX"):
         break
+
+    match8 = re.search(r'^(?:[^|]*\|){7}([^|]*)\|', line)
+    if match8:
+        cdnumn.append(match8.group(1).strip())
     
-    cdnumn.append(line[37:42].strip())
-    cdnamen.append(line[43:50].strip())
-    featuren.append(line[51:58].strip())
-    tonen.append(line[59:66].strip())
-    polarityn.append(line[67:73].strip())
+    match9 = re.search(r'^(?:[^|]*\|){8}([^|]*)\|', line)
+    if match9:
+        cdnamen.append(match9.group(1).strip())
+    
+    match10 = re.search(r'^(?:[^|]*\|){9}([^|]*)\|', line)
+    if match10:
+        featuren.append(match10.group(1).strip())
+    
+    match11 = re.search(r'^(?:[^|]*\|){10}([^|]*)\|', line)
+    if match11:
+        tonen.append(match11.group(1).strip())
+    
+    match12 = re.search(r'^(?:[^|]*\|){11}([^|]*)\|', line)
+    if match12:
+        polarityn.append(match12.group(1).strip())
+
 
     count2+=1
             
@@ -280,4 +383,4 @@ with open("Output_python.xml", "w") as f:
 
 print("end")
 
-f.close()
+
