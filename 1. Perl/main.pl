@@ -12,54 +12,98 @@ my @lines = <$fh>;
 
 close($fh);
 
-sub search 
-{
-    my ($s, $n) = @_;
+my ($technologyname, $customername, $devicen,$masksupplier, $daten1, $daten2, $daten3, $daten);
+my ($siteof,$orderformnumber,$revisionn,$pagen,$statusn,$masksetname,$fabunit,$emailaddress);
+my ($ponumbers,$sitetosendmasksto,$sitetosendinvoiceto,$technicalcontact,$shippingmethod,$additionalinfo);
 
-    foreach my $line (@lines) 
+foreach my $line (@lines) {
+     if ($line =~ /\|\s*(.*?)\s*MASK SUPPLIER/) #(.*?): capturing grp, \s*: white spaces
+     {
+        $customername = $1;
+    }
+     if ($line =~ /DEVICE\s*:\s*(.*?)\s*\|/) 
+     {
+        $devicen = $1;
+    }
+    if ($line =~ /MASK SUPPLIER\s*:\s*(.*?)\s+DATE\s*:/) 
     {
-        my $i = index($line, $s);
-        
-        if ($i != -1) 
-        {
-            my $s1 = $i-1 + length($s);
-            my $result = substr($line, $s1, $n);
-            $result=~ s/^\s+|\s+$//g;
-            return $result; 
-        }
+        $masksupplier = $1;
+    }
+    if ($line =~ /DATE\s*:\s*(.*?)\s*\|/) 
+     {
+        $daten1 = $1;
+    }
+    if ($line =~ /SITE OF\s*:\s*(.*?)\s+ORDERFORM NUMBER\s*:/) 
+    {
+        $siteof = $1;
+    }
+    if ($line =~ /ORDERFORM NUMBER\s*:\s*(.*?)\s+REVISION\s*:/) 
+    {
+        $orderformnumber = $1;
+    }
+    if ($line =~ /REVISION\s*:\s*(.*?)\s+PAGE\s*:/) 
+    {
+        $revisionn = $1;
+    }
+    if ($line =~ /PAGE\s*:\s*(.*?)\s+OF\s*/) 
+    {
+        $pagen = $1;
+    }
+    if ($line =~ /TECHNOLOGY NAME\s*:\s*(.*?)\s+STATUS\s*:/) 
+    {
+        $technologyname = $1;
     }
 
-    return "";
+    if ($line =~ /STATUS\s*:\s*(.*?)\s*\|/) 
+    {
+        $statusn = $1;
+    }
+    if ($line =~ /MASK SET NAME\s*:\s*(.*?)\s*\|/) 
+    {
+        $masksetname = $1;
+    }
+    if ($line =~ /FAB UNIT\s*:\s*(.*?)\s+EMAIL\s*:/) 
+    {
+        $fabunit = $1;
+    }
+    if ($line =~ /EMAIL\s*:\s*(.*?)\s*\|/) 
+    {
+        $emailaddress = $1;
+    }
+    if ($line =~ /NUMBERS\s*:\s*(.*?)\s+SPECIFICATIONS\s*:/) 
+    {
+        $ponumbers = $1;
+    }
+    if ($line =~ /SITE TO SEND MASKS TO\s*:\s*(.*?)\s+TO THE ATTENTION OF\s*:/) 
+    {
+        $sitetosendmasksto = $1;
+    }
+    if ($line =~ /SITE TO SEND INVOICE TO\s*:\s*(.*?)\s+TECHNICAL CONTACT\s*:/) 
+    {
+        $sitetosendinvoiceto = $1;
+    }
+    if ($line =~ /TECHNICAL CONTACT\s*:\s*(.*?)\s+SHIPPING METHOD\s*:/) 
+    {
+        $technicalcontact = $1;
+    }
+
+
+    if ($line =~ /SHIPPING METHOD\s*:\s*(.*?)\s*\|/) 
+    {
+        $shippingmethod = $1;
+    }
+    if ($line =~ /CUSTOM CLEARANCE DONE BY\s*:\s*(.*?)\s*\|/) 
+    {
+        $additionalinfo = $1;
+    }
 }
 
-my $customername = search("!",30);
-my $devicen = search("DEVICE : ",30);
-my $masksupplier = search("MASK SUPPLIER : ", 30);
-
-my $daten1 = search ("DATE : " ,11);
-print ("daten1= $daten1\n");
-my $daten2 = DateTime::Format::Strptime->new(pattern => '%m/%d/%Y',on_error=>"croak");
-print"daten2=$daten2\n";
-my $daten3 = $daten2->parse_datetime($daten1);
-print"daten3=$daten3\n";
-my $daten = $daten3->strftime('%Y-%m-%d');
-
-my $siteof= search ("SITE OF : ",30);
-my $orderformnumber = search("ORDERFORM NUMBER : ",15);
-my $revisionn = search("REVISION : ",10);
-my $pagen = search ("PAGE : ",4);
-my $technologyname = search ("TECHNOLOGY NAME : ",20);
-my $statusn= search("STATUS    : ",5);
-my $masksetname  =search ("MASK SET NAME : ",30);
-my $fabunit= search("FAB UNIT        : ",20);
-my $emailaddress= search("EMAIL : ",22);
-
-my $ponumbers=search ("P.O. NUMBERS : ",30);
-my $sitetosendmasksto=search("SITE TO SEND MASKS TO : ",24);
-my $sitetosendinvoiceto=search("SITE TO SEND INVOICE TO : ",22);
-my $technicalcontact=search("TECHNICAL CONTACT : ",26);
-my $shippingmethod=search("SHIPPING METHOD : ",15);
-my $additionalinfo=search("ADDITIONAL INFORMATION : ",15);
+#print ("daten1= $daten1\n");
+$daten2 = DateTime::Format::Strptime->new(pattern => '%m/%d/%Y',on_error=>"croak");
+#print"daten2=$daten2\n";
+$daten3 = $daten2->parse_datetime($daten1);
+#print"daten3=$daten3\n";
+$daten = $daten3->strftime('%Y-%m-%d');
 
 print("Customer= $customername\n");
 print("Device= $devicen\n");
@@ -77,7 +121,6 @@ print("Email address= $emailaddress\n");
 
 
 my @revision2;
-
 my $c1 = 0;
 
 #Revison2
@@ -91,16 +134,21 @@ for (my $l = 0; $l < scalar @lines; $l++)
     }
 }
 
-print "last line no.= $#lines\n";
+#print "last line no.= $#lines\n";
 
 for my $line (@lines[$c1+6 .. $#lines]) 
 {
     last if $line =~ /^\|XX/;
+
+    if ($line =~ /^(?:[^|]*\|){2}([^|]*)\|/)
+    #   ^:str beginning, \s*: white spaces, (?:[^|]*\|) : non-capturing, ([^|]*) capturing 
+    {
+        
+        my $match1 = $1;
+        $match1 =~ s/^\s+|\s+$//g;  
+        push @revision2, $match1;  
     
-    my $r = substr($line, 7, 3);
-    $r =~ s/^\s+|\s+$//g; 
-    push @revision2, $r;
-    
+    } 
 }
 
 print "Revision2 array= @revision2\n";
@@ -126,25 +174,58 @@ for my $line (@lines[$c2+2 .. $#lines])
 {
     last if $line =~ /^\|----/;
     
-    push @numn, substr($line, 3, 4) =~ s/^\s+|\s+$//gr;
-    push @maskcodificationn, substr($line, 8, 33) =~ s/^\s+|\s+$//gr;
-    push @groupn, substr($line, 42, 3) =~ s/^\s+|\s+$//gr;
-    push @cyclen, substr($line, 47, 3) =~ s/^\s+|\s+$//gr;
-    push @qtyn, substr($line, 52, 3) =~ s/^\s+|\s+$//gr;
 
-    my $shipdaten1 = substr($line, 56, 8) =~ s/^\s+|\s+$//gr;
-    print "shipdaten1= $shipdaten1\n";
-    my $shipdaten2 = DateTime::Format::Strptime->new(pattern => '%d%b%y',on_error=>"croak");
-    print "shipdaten2= $shipdaten2\n";
-    my $shipdaten3 = $shipdaten2->parse_datetime($shipdaten1);
-    print "shipdaten2= $shipdaten2\n";
-    my $shipdaten = $shipdaten3->strftime('%Y-%m-%d');
+    if ($line =~ /^(?:[^|]*\|){1}([^|]*)\|/)   #(?:[^|]*\|) : non-capturing, ([^|]*) capturing 
+    {
+        my $match2 = $1;
+        $match2 =~ s/^\s+|\s+$//g;  
+        push @numn, $match2;  
+    } 
 
-    push @shipdaten, $shipdaten;
+    if ($line =~ /^(?:[^|]*\|){2}([^|]*)\|/)   
+    {
+        my $match3 = $1;
+        $match3 =~ s/^\s+|\s+$//g;  
+        push @maskcodificationn, $match3;  
+    } 
 
-    $count1++;
-    
-    
+    if ($line =~ /^(?:[^|]*\|){3}([^|]*)\|/)    
+    {
+        my $match4 = $1;
+        $match4 =~ s/^\s+|\s+$//g;  
+        push @groupn, $match4;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){4}([^|]*)\|/)   
+    {
+        my $match5 = $1;
+        $match5 =~ s/^\s+|\s+$//g;  
+        push @cyclen, $match5;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){5}([^|]*)\|/)   
+    {
+        my $match6 = $1;
+        $match6 =~ s/^\s+|\s+$//g;  
+        push @qtyn, $match6;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){6}([^|]*)\|/)    
+    {
+        my $match7 = $1;
+        $match7 =~ s/^\s+|\s+$//g;  
+        my $shipdaten1 = $match7;
+        #print "shipdaten1= $shipdaten1\n";
+        my $shipdaten2 = DateTime::Format::Strptime->new(pattern => '%d%b%y',on_error=>"croak");
+        #print "shipdaten2= $shipdaten2\n";
+        my $shipdaten3 = $shipdaten2->parse_datetime($shipdaten1);
+        #print "shipdaten2= $shipdaten2\n";
+        my $shipdaten = $shipdaten3->strftime('%Y-%m-%d');
+        
+        push @shipdaten, $shipdaten;
+    } 
+
+    $count1++;    
 }
 
 print "num: @numn\n";
@@ -176,11 +257,40 @@ for my $line (@lines[$c3+6 .. $#lines])
 {
     last if $line =~ /^\|XX/;
     
-    push @cdnumn, substr($line, 37, 5) =~ s/^\s+|\s+$//gr;
-    push @cdnamen, substr($line, 43, 7) =~ s/^\s+|\s+$//gr;
-    push @featuren, substr($line, 51, 7) =~ s/^\s+|\s+$//gr;
-    push @tonen, substr($line, 59, 7) =~ s/^\s+|\s+$//gr;
-    push @polarityn, substr($line, 67, 6) =~ s/^\s+|\s+$//gr;
+    if ($line =~ /^(?:[^|]*\|){7}([^|]*)\|/)   
+    {
+        my $match8 = $1;
+        $match8 =~ s/^\s+|\s+$//g;  
+        push @cdnumn, $match8;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){8}([^|]*)\|/)   
+    {
+        my $match9 = $1;
+        $match9 =~ s/^\s+|\s+$//g;  
+        push @cdnamen, $match9;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){9}([^|]*)\|/)   
+    {
+        my $match9 = $1;
+        $match9 =~ s/^\s+|\s+$//g;  
+        push @featuren, $match9;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){10}([^|]*)\|/)    
+    {
+        my $match10 = $1;
+        $match10 =~ s/^\s+|\s+$//g;  
+        push @tonen, $match10;  
+    } 
+
+    if ($line =~ /^(?:[^|]*\|){11}([^|]*)\|/)  
+    {
+        my $match11 = $1;
+        $match11 =~ s/^\s+|\s+$//g;  
+        push @polarityn, $match11;  
+    } 
 
     $count2++;
 }
